@@ -1,1 +1,402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Happy Birthday Muskan!</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700&family=Pacifico&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Nunito', sans-serif;
+            overflow: hidden;
+            margin: 0;
+            background-color: #fffbeb; /* A very light cream background for the body */
+        }
+        .page {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 20px; /* Overall padding for the page */
+            box-sizing: border-box;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.8s ease-in-out, transform 0.8s ease-in-out;
+            transform: scale(0.95);
+            backface-visibility: hidden;
+        }
+        .page.active {
+            opacity: 1;
+            visibility: visible;
+            transform: scale(1);
+        }
+        .page-up {
+            transform: translateY(-100%);
+        }
+        .page-down {
+            transform: translateY(100%);
+        }
+        .page-fade-out {
+            opacity: 0;
+            transform: scale(1.05);
+        }
 
+        .title-font {
+            font-family: 'Pacifico', cursive;
+        }
+
+        /* Cake styles */
+        .cake-container {
+            position: relative;
+            width: 200px;
+            height: 220px;
+            margin-bottom: 30px;
+            cursor: pointer;
+        }
+        .cake-base {
+            width: 200px;
+            height: 100px;
+            background-color: #f4a261; /* Cake color */
+            border-radius: 10px 10px 50% 50% / 0 0 30px 30px;
+            position: absolute;
+            bottom: 0;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+        .cake-icing {
+            width: 210px; /* Slightly wider for drip effect */
+            height: 50px;
+            background-color: #e76f51; /* Icing color */
+            border-radius: 50% / 25px;
+            position: absolute;
+            top: 70px; /* Positioned on top of the base */
+            left: -5px;
+            box-shadow: 0 5px 10px rgba(0,0,0,0.1);
+        }
+        .cake-icing::before, .cake-icing::after { /* Drips */
+            content: '';
+            position: absolute;
+            width: 30px;
+            height: 40px;
+            background-color: #e76f51;
+            border-radius: 0 0 15px 15px;
+            top: 20px;
+        }
+        .cake-icing::before { left: 30px; }
+        .cake-icing::after { right: 30px; }
+
+        .candle {
+            width: 10px;
+            height: 40px;
+            background-color: #fff;
+            position: absolute;
+            top: 40px; /* Positioned above icing */
+            border-radius: 5px 5px 0 0;
+        }
+        .candle.c1 { left: 70px; }
+        .candle.c2 { left: 95px; }
+        .candle.c3 { left: 120px; }
+
+        .flame {
+            width: 8px;
+            height: 12px;
+            background-color: #fca311;
+            border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+            position: absolute;
+            top: -10px; /* Above the candle */
+            left: 1px;
+            animation: flicker 0.5s infinite alternate;
+            transform-origin: bottom;
+        }
+        @keyframes flicker {
+            0% { transform: scaleY(1) scaleX(1); opacity: 1; }
+            50% { transform: scaleY(0.95) scaleX(1.05); opacity: 0.8; }
+            100% { transform: scaleY(1.05) scaleX(0.95); opacity: 1; }
+        }
+        .flame.out {
+            animation: none;
+            opacity: 0;
+            transform: scale(0);
+            transition: opacity 0.3s ease-out, transform 0.3s ease-out;
+        }
+
+        .cake-slice {
+            width: 0;
+            height: 0;
+            border-left: 50px solid transparent;
+            border-right: 50px solid transparent;
+            border-bottom: 90px solid #d48c50; /* Inner cake color */
+            position: absolute;
+            top: 100px;
+            left: 50px;
+            transform: rotate(0deg) translateX(150px) scale(0);
+            opacity: 0;
+            transition: transform 0.8s cubic-bezier(0.68, -0.55, 0.27, 1.55), opacity 0.5s ease-out;
+            transform-origin: 0% 100%; 
+        }
+        .cake-container.cut .cake-slice {
+            transform: rotate(-30deg) translateX(0px) scale(1);
+            opacity: 1;
+        }
+        .cake-container.cut .flame {
+            opacity: 0;
+        }
+
+
+        /* Button style */
+        .btn {
+            background-color: #2a9d8f; /* Teal button */
+            color: white;
+            padding: 12px 25px;
+            border-radius: 25px; /* Rounded pill shape */
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: transform 0.2s ease-out, background-color 0.2s;
+            cursor: pointer;
+            border: none;
+            margin-top: 20px; /* Default margin, can be overridden */
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+            background-color: #264653; /* Darker teal on hover */
+        }
+
+        /* Confetti */
+        .confetti-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            overflow: hidden;
+            z-index: 9999;
+        }
+        .confetti {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background-color: red; /* Default, will be overridden */
+            opacity: 0.7;
+            animation: fall 5s linear infinite;
+        }
+        /* Specific confetti styles */
+         .confetti.c1 { background-color: #f4a261; left: 10%; animation-duration: 4s; animation-delay: 0s; }
+        .confetti.c2 { background-color: #e76f51; left: 20%; animation-duration: 5s; animation-delay: 1s; }
+        .confetti.c3 { background-color: #2a9d8f; left: 30%; animation-duration: 3s; animation-delay: 2s; }
+        .confetti.c4 { background-color: #264653; left: 40%; animation-duration: 6s; animation-delay: 0.5s; }
+        .confetti.c5 { background-color: #e9c46a; left: 50%; animation-duration: 4.5s; animation-delay: 1.5s; }
+        .confetti.c6 { background-color: #f4a261; left: 60%; animation-duration: 5.5s; animation-delay: 2.5s; }
+        .confetti.c7 { background-color: #e76f51; left: 70%; animation-duration: 3.5s; animation-delay: 0.2s; }
+        .confetti.c8 { background-color: #2a9d8f; left: 80%; animation-duration: 6.5s; animation-delay: 1.2s; }
+        .confetti.c9 { background-color: #264653; left: 90%; animation-duration: 4.2s; animation-delay: 2.2s; }
+        .confetti.c10 { background-color: #e9c46a; left: 5%; animation-duration: 5.8s; animation-delay: 0.8s; }
+
+        @keyframes fall {
+            0% {
+                transform: translateY(-10vh) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(110vh) rotate(720deg);
+                opacity: 0;
+            }
+        }
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body class="bg-yellow-50"> 
+    <div id="confetti-container" class="confetti-container hidden">
+        </div>
+
+    <div id="page1" class="page active bg-gradient-to-br from-amber-400 via-orange-500 to-red-500">
+        <h1 class="text-5xl md:text-6xl title-font text-white mb-6 drop-shadow-lg">Happy Birthday</h1>
+        <h2 class="text-6xl md:text-7xl title-font text-white mb-12 drop-shadow-xl">Muskan!</h2>
+        <p class="text-lg text-white mb-8">Get ready for a little celebration!</p>
+        <button id="startButton" class="btn">Let's Start!</button>
+    </div>
+
+    <div id="page2" class="page bg-gradient-to-br from-purple-400 to-indigo-400">
+        <h2 class="text-4xl title-font text-white mb-2">Make a Wish &</h2>
+        <h3 class="text-3xl title-font text-white mb-8">Cut the Cake!</h3>
+        <div id="cakeContainer" class="cake-container">
+            <div class="cake-base"></div>
+            <div class="cake-icing"></div>
+            <div class="candle c1"><div class="flame"></div></div>
+            <div class="candle c2"><div class="flame"></div></div>
+            <div class="candle c3"><div class="flame"></div></div>
+            <div class="cake-slice"></div>
+        </div>
+        <p id="cakeInstruction" class="text-md text-gray-200">Tap the cake to cut it!</p>
+        <button id="proceedToMessage1" class="btn hidden mt-8">See Your Wishes</button>
+    </div>
+
+    <div id="page3" class="page bg-gradient-to-br from-green-300 to-teal-400">
+        <h2 class="text-4xl title-font text-white mb-6">A Special Wish For You...</h2>
+        <div class="bg-white/80 p-4 rounded-xl shadow-xl max-w-md mx-4">
+            <p id="message1Text" class="text-gray-700 text-lg md:text-xl leading-relaxed text-left">
+                Hello muskan.. waise to koi aur bhi tujhe wish krna chah rha tha pr I though what can be more special then receiving the 1st wish from your crush??😂😂😂 I know we were not in touch beech me lekin ab jab connect huye h to aise huye h ki bs you have become my comfort zone jisse mai jab chahu jo chahu wo share kr skta hu. Thank you so much yrr wo being there to talk late night and for making all those nights way more beautiful than they would have been if I were dating aditi.. dekh le beta abhi bhi mauka h🤣🤣.. anyways, I wish you a very happy birthday once again🥳🥳🥳🥳
+            </p>
+        </div>
+        <button id="nextMessageButton" class="btn mt-4">One More Wish!</button>
+    </div>
+
+    <div id="page4" class="page bg-gradient-to-br from-blue-300 to-sky-400">
+        <h2 class="text-4xl title-font text-white mb-6">And Another One...</h2>
+        <div class="bg-white/80 p-4 rounded-xl shadow-xl max-w-md mx-4">
+            <p id="message2Text" class="text-gray-700 text-lg md:text-xl leading-relaxed text-left">
+                feliz cumpleaños, Gracias por ser mi amiga, dekh abhi tk itni hi Spanish seekhi hai to itna hi likh paai hu, next birthday poora msg Spanish me hoga pakka, jise bs apn dono samajh paae 😂😂 school time pe itne acche dost nhi the, pr ab baate krke esa lgta hai ki bichde hue dost mil gae ho🥳, I cant tell how grateful I am jo ese apne calls hote hai aur apn baate krte hai, it just feels like home again, kid again, safe again and most importantly you are not alone wala feel. accha baki bate phone pe, abhi ke lie happy birthday again 🥳🥳 all the very best for life ahead  🥂
+            </p>
+        </div>
+        <button id="restartButton" class="btn mt-4">Celebrate Again?</button>
+    </div>
+
+    <script>
+        // DOM Elements
+        const pages = document.querySelectorAll('.page');
+        const startButton = document.getElementById('startButton');
+        const cakeContainer = document.getElementById('cakeContainer');
+        const cakeInstruction = document.getElementById('cakeInstruction');
+        const proceedToMessage1Button = document.getElementById('proceedToMessage1');
+        const nextMessageButton = document.getElementById('nextMessageButton');
+        const restartButton = document.getElementById('restartButton');
+        const confettiContainer = document.getElementById('confetti-container');
+        const flames = document.querySelectorAll('.flame');
+
+        // Message elements
+        const message1TextElement = document.getElementById('message1Text');
+        // const message2TextElement = document.getElementById('message2Text'); // Already set in HTML
+
+        let currentPage = 0;
+        let cakeCut = false;
+
+        // Function to transition between pages
+        function goToPage(pageIndex) {
+            if (pages[currentPage]) {
+                // Determine transition direction
+                if (pageIndex > currentPage) {
+                    pages[currentPage].classList.add('page-up'); // Current page slides up
+                } else {
+                    pages[currentPage].classList.add('page-down'); // Current page slides down (for restart)
+                }
+                pages[currentPage].classList.remove('active');
+                // Delay to allow slide-out animation before next page slides in
+                setTimeout(() => {
+                    if (pages[currentPage]) pages[currentPage].classList.remove('page-up', 'page-down');
+                }, 800);
+            }
+
+            currentPage = pageIndex;
+            if (pages[currentPage]) {
+                pages[currentPage].classList.add('active');
+                if (pageIndex === 1 || pageIndex === 2 || pageIndex === 3) { // Show confetti on cake and message pages
+                    startConfetti();
+                } else {
+                    stopConfetti();
+                }
+            }
+        }
+
+        // Event Listeners
+        startButton.addEventListener('click', () => {
+            goToPage(1); // Go to cake page
+        });
+
+        cakeContainer.addEventListener('click', () => {
+            if (!cakeCut) {
+                cakeContainer.classList.add('cut');
+                flames.forEach(flame => flame.classList.add('out'));
+                cakeInstruction.textContent = "Woohoo! Cake 'cut'!";
+                cakeCut = true;
+                // Show the proceed button after a short delay for the animation
+                setTimeout(() => {
+                    proceedToMessage1Button.classList.remove('hidden');
+                }, 800); // Match slice animation duration (0.8s)
+            }
+        });
+
+        proceedToMessage1Button.addEventListener('click', () => {
+            if (cakeCut) {
+                goToPage(2); // Go to first message page
+            }
+        });
+
+        nextMessageButton.addEventListener('click', () => {
+            goToPage(3); // Go to second message page
+        });
+
+        restartButton.addEventListener('click', () => {
+            cakeCut = false;
+            cakeContainer.classList.remove('cut');
+            flames.forEach(flame => flame.classList.remove('out'));
+            cakeInstruction.textContent = "Tap the cake to cut it!";
+            proceedToMessage1Button.classList.add('hidden');
+            goToPage(0); // Go back to the first page
+        });
+
+        // Confetti generation
+        function createConfettiPiece() {
+            const confetti = document.createElement('div');
+            confetti.classList.add('confetti');
+            confetti.style.left = Math.random() * 100 + 'vw';
+            confetti.style.width = Math.random() * 8 + 6 + 'px'; // Random width
+            confetti.style.height = confetti.style.width; // Square or slightly rectangular
+            confetti.style.backgroundColor = `hsl(${Math.random() * 360}, 100%, 70%)`; // Random bright color
+            confetti.style.animationDuration = Math.random() * 3 + 3 + 's'; // 3-6 seconds
+            confetti.style.animationDelay = Math.random() * 2 + 's'; // 0-2 seconds delay
+            
+            const shape = Math.random();
+            if (shape < 0.3) {
+                confetti.style.borderRadius = '0'; // Square
+            } else if (shape < 0.7) {
+                confetti.style.borderRadius = '50%'; // Circle
+            } else {
+                // Rectangle 
+                 confetti.style.height = Math.random() * 10 + 5 + 'px';
+            }
+            return confetti;
+        }
+
+        let confettiInterval;
+
+        function startConfetti() {
+            confettiContainer.classList.remove('hidden');
+            confettiContainer.innerHTML = ''; // Clear existing confetti
+            for (let i = 0; i < 50; i++) { // Create initial burst
+                confettiContainer.appendChild(createConfettiPiece());
+            }
+            // Add more confetti periodically
+            confettiInterval = setInterval(() => {
+                if (confettiContainer.children.length < 100) { // Limit total confetti
+                    confettiContainer.appendChild(createConfettiPiece());
+                }
+                // Remove old confetti that has fallen off screen
+                const oldConfetti = confettiContainer.querySelector('.confetti');
+                if (oldConfetti && oldConfetti.offsetTop > window.innerHeight) {
+                    oldConfetti.remove();
+                }
+            }, 300);
+        }
+
+        function stopConfetti() {
+            clearInterval(confettiInterval);
+            // Allow existing confetti to fall off screen before hiding container
+            setTimeout(() => {
+                confettiContainer.classList.add('hidden');
+                confettiContainer.innerHTML = ''; // Clear out confetti for next time
+            }, 5000); // Match longest animation duration of confetti
+        }
+
+    </script>
+</body>
+</html>
